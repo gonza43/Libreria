@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Libraria – Tu Próxima Historia te Espera</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==== Paleta de Colores y Variables ==== */
+    :root {
+      --c-bg-main:   #F2F0F2;
+      --c-ui-element:#A69485;
+      --c-bg-light:  white;
+      --c-accent:    #2A56C7;
+      --c-accent-hover:#152C75;
+      --c-dark:      #0F1F40;
+      --c-text-muted: #5c677d;
+      --c-border:    #dfe1e3;
+      --font-heading: 'Playfair Display', serif;
+      --font-body:    'Lato', sans-serif;
+      --br-main:      12px;
+      --shadow-sm:    0 4px 10px rgba(0,0,0,0.05);
+      --shadow-md:    0 8px 20px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:16px; scroll-behavior:smooth; }
+    body { font-family:var(--font-body); line-height:1.6; background:var(--c-bg-main); color:var(--c-dark); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .container { max-width:1200px; margin:auto; padding:0 1.5rem; }
+    
+    /* --- NAVEGACIÓN --- */
+    .site-header { position:sticky; top:0; z-index:1000; background:rgba(242, 240, 242, 0.85); backdrop-filter:blur(10px); transition: box-shadow 0.3s ease; }
+    .site-header.scrolled { box-shadow: 0 2px 15px rgba(0,0,0,0.07); }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; padding:1rem 0; }
+    .logo { font-family:var(--font-heading); font-size:1.7rem; color:var(--c-dark); text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; }
+    .nav { display:flex; align-items:center; gap:1rem; }
+    .nav-link { color:var(--c-dark); text-decoration:none; font-weight:700; font-size: 0.9rem; transition:color .2s; position: relative; padding-bottom: 4px; }
+    .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--c-accent); transition: width .3s; }
+    .nav-link:hover::after { width: 100%; }
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .nav-action-btn { position:relative; background:transparent; border:none; cursor:pointer; padding: 5px; color: var(--c-dark); transition: transform 0.2s ease; }
+    .nav-action-btn:hover { transform: scale(1.1); }
+    .icon { width:1.5rem; height:1.5rem; }
+    .badge { position:absolute; top:-6px; right:-8px; background:var(--c-accent); color: #fff; font-size:.7rem; font-weight:600; padding:2px 6px; border-radius:999px; pointer-events: none; }
+    .hamburger-menu { display: none; }
+
+    /* --- HÉROE --- */
+    .hero { padding: 6rem 0; min-height: 90vh; display: grid; align-items: center; grid-template-columns: 1fr 1.5fr; gap: 3rem; }
+    .hero-content { max-width: 500px; }
+    .hero-category { font-size: 1.1rem; font-weight: 700; color: var(--c-accent); margin-bottom: 1rem; }
+    .hero-title { font-family: var(--font-heading); font-size: 4.5rem; font-weight: 700; margin-bottom: 2rem; line-height: 1.1; letter-spacing: -1px; }
+    .hero-buttons { display: flex; gap: 1rem; }
+    .hero-image-wrapper { height: 100%; align-self: stretch; }
+    .hero-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--br-main); box-shadow: var(--shadow-md); }
+    
+    /* --- BOTONES --- */
+    .btn { text-decoration:none; font-weight:700; transition: all .2s ease, transform .1s ease; border-radius:var(--br-main); padding: .85rem 2rem; display:inline-block; border: 2px solid transparent; cursor: pointer; }
+    .btn:hover { transform: translateY(-3px) scale(1.02); }
+    .btn-primary { background:var(--c-accent); color:white; border-color: var(--c-accent); }
+    .btn-primary:hover { background:var(--c-accent-hover); border-color: var(--c-accent-hover); box-shadow: 0 5px 15px rgba(42, 86, 199, 0.3); }
+    .btn-secondary { background:transparent; color:var(--c-dark); border-color: var(--c-border); }
+    .btn-secondary:hover { background: var(--c-dark); color: white; border-color: var(--c-dark);}
+    .btn-icon { background: white; border: 1px solid var(--c-border); color: var(--c-text-muted); padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .btn-icon .icon { width: 20px; height: 20px; pointer-events: none;}
+    .btn-icon:hover { background: var(--c-bg-main); color: var(--c-dark); }
+    .btn-icon.active { background: var(--c-accent); color: white; border-color: var(--c-accent); }
+    
+    /* --- ESTRUCTURA GENERAL DE SECCIONES --- */
+    .section { padding:6rem 0; overflow: hidden; }
+    .section-light { background:var(--c-bg-light); }
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .section-header .section-title { text-align: left; margin-bottom: 0; font-size: 2.5rem; }
+    .section-header .view-all-link { font-weight: 700; color: var(--c-accent); text-decoration: none; }
+    .section-title { font-family:var(--font-heading); font-size:3.2rem; text-align:center; margin-bottom:1.5rem; color:var(--c-dark); font-weight: 700;}
+    .section-subtitle { text-align:center; font-size: 1.1rem; max-width: 650px; margin-left: auto; margin-right: auto; margin-bottom:4rem; color: var(--c-text-muted); }
+    .grid { display:grid; gap:2.5rem; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); }
+    
+    /* --- FILTROS (CATÁLOGO) --- */
+    .filter-bar { display: flex; justify-content: center; gap: 0.8rem; margin-bottom: 3rem; flex-wrap: wrap; }
+    .filter-btn { background: white; border: 1px solid var(--c-border); color: var(--c-text-muted); padding: 0.6rem 1.2rem; border-radius: 999px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+    .filter-btn:hover { background: var(--c-bg-main); color: var(--c-dark); }
+    .filter-btn.active { background: var(--c-dark); color: white; border-color: var(--c-dark); }
+    .pagination-container { display: flex; justify-content: center; gap: 1rem; margin-top: 3rem; }
+
+    /* --- TARJETA DE LIBRO (CATÁLOGO) --- */
+    .book-card { background:transparent; border-radius: var(--br-main); display:flex; flex-direction:column; text-align:center; transition:transform .3s,box-shadow .3s; position: relative; }
+    .book-card:hover { transform:translateY(-10px); box-shadow:var(--shadow-md); }
+    .book-img-wrapper { border-radius:var(--br-main); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; position: relative; }
+    .book-card-actions { position: absolute; top: 0.8rem; right: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; opacity: 0; transform: translateX(10px); transition: all .3s ease; }
+    .book-card:hover .book-card-actions { opacity: 1; transform: translateX(0); }
+    .book-img { width:100%; display: block; height:auto; aspect-ratio: 2/3; object-fit:cover; transition: transform 0.4s ease; }
+    .book-card:hover .book-img { transform: scale(1.05); }
+    .book-body { display:flex; flex-direction:column; flex-grow:1; padding:0 0.5rem; }
+    .book-title { font-family:var(--font-heading); font-size:1.4rem; margin-bottom:.3rem; color:var(--c-dark); font-weight: 700; line-height: 1.2; }
+    .book-author { font-size:.95rem; margin-bottom:0.5rem; color: var(--c-text-muted); }
+    .book-price { font-weight:700; font-size: 1.1rem; margin-top: auto; padding-top: 0.5rem; color: var(--c-accent); }
+    .btn-add { background:var(--c-dark); color: white; border:none; padding:.8rem; border-radius:8px; cursor:pointer; font-weight:700; font-size: 0.9rem; transition: all .3s; width: calc(100% - 2rem); margin: 1.5rem auto 0; }
+    .book-card .btn-add { opacity: 0; transform: translateY(10px); }
+    .book-card:hover .btn-add { opacity: 1; transform: translateY(0); }
+
+    /* --- INICIO: ESTILOS DE LA NUEVA SECCIÓN FINDER --- */
+    .finder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .finder-card {
+      text-decoration: none;
+      color: white;
+      aspect-ratio: 4/5;
+      border-radius: var(--br-main);
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: block;
+    }
+    .finder-card:hover {
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: var(--shadow-md);
+    }
+    .finder-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      transition: transform 0.4s ease-out;
+      filter: grayscale(50%);
+    }
+    .finder-card:hover .finder-card-img {
+      transform: scale(1.1);
+      filter: grayscale(0%);
+    }
+    .finder-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15, 31, 64, 0.9) 10%, rgba(15, 31, 64, 0.1) 60%);
+      z-index: 2;
+      transition: background 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .finder-card-content {
+      padding: 1.5rem;
+      transform: translateY(10px);
+      transition: transform 0.3s ease-out;
+    }
+    .finder-card:hover .finder-card-content {
+        transform: translateY(0);
+    }
+    .finder-card-content h3 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    }
+    .finder-card-content p {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--c-bg-main);
+      opacity: 0.8;
+    }
+    /* --- FIN: ESTILOS DE LA NUEVA SECCIÓN FINDER --- */
+
+    /* --- TARJETA DE CATEGORÍA --- */
+    .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; perspective: 1000px; }
+    .category-card { text-decoration: none; color: white; aspect-ratio: 3/4; border-radius: var(--br-main); overflow: hidden; position: relative; box-shadow: var(--shadow-sm); transform-style: preserve-3d; transition: transform 0.4s ease-out, box-shadow 0.4s ease-out; opacity: 0; transform: translateY(40px) rotateX(-10deg); }
+    .category-card.visible { opacity: 1; transform: translateY(0) rotateX(0deg); }
+    .category-card:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
+    .category-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)); z-index: 2; transition: background 0.3s ease; transform: translateZ(20px); }
+    .category-card-img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; transition: transform 0.4s ease-out; }
+    .category-card-title { position: relative; z-index: 3; font-family: var(--font-heading); font-size: 1.5rem; text-align: center; padding: 1rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); transition: transform 0.4s ease-out; transform: translateZ(50px); }
+    
+    /* === ESTILOS: RECOMENDADOS (CÍRCULO INTERACTIVO) === */
+    .book-wheel-container { display: flex; align-items: center; justify-content: center; height: 550px; position: relative; margin-top: 4rem; perspective: 1500px; }
+    .book-wheel { position: relative; width: 300px; height: 300px; transform-style: preserve-3d; animation: spin 35s linear infinite; }
+    .book-wheel-container:hover .book-wheel { animation-play-state: paused; }
+    @keyframes spin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+    .book-wheel-item { position: absolute; top: 50%; left: 50%; width: 150px; height: 225px; margin-top: -112px; margin-left: -75px; border-radius: var(--br-main); overflow: hidden; box-shadow: var(--shadow-md); transform-style: preserve-3d; cursor: pointer; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease; }
+    .book-wheel-item img { width: 100%; height: 100%; object-fit: cover; }
+    .book-wheel-item.hovered { transform: var(--transform-initial) scale(1.3) !important; opacity: 1 !important; z-index: 10; }
+    .book-wheel-item.pushed-back { transform: var(--transform-initial) scale(0.9); opacity: 0.4; }
+    .book-details-panel { position: absolute; top: 50%; left: 50%; width: 400px; text-align: center; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); padding: 2rem; border-radius: 50%; aspect-ratio: 1/1; display: flex; flex-direction: column; justify-content: center; color: var(--c-dark); opacity: 0; visibility: hidden; transform: translate(-50%, -50%) scale(0.9); transition: all 0.4s ease-out; z-index: 5; }
+    .book-details-panel.is-active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+    .wheel-book-title { font-family: var(--font-heading); font-size: 1.8rem; line-height: 1.1; margin-bottom: 0.5rem; }
+    .wheel-book-author { font-size: 1rem; color: var(--c-text-muted); margin-bottom: 0.8rem; }
+    .wheel-book-price { font-size: 1.3rem; font-weight: 700; color: var(--c-accent); margin-bottom: 1.5rem; }
+
+    /* === ESTILOS: MÁS VENDIDOS (ESTANTERÍA INTERACTIVA) === */
+    .tabs-nav { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: 2px solid var(--c-border); color: var(--c-text-muted); padding: 0.7rem 1.5rem; border-radius: 999px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem; }
+    .tab-btn:hover, .tab-btn.active { background: var(--c-dark); color: white; border-color: var(--c-dark); }
+    .bookshelf-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; align-items: start; margin-top: 2rem; }
+    .bookshelf-container { perspective: 1200px; }
+    .bookshelf { background: #A69485; border: 15px solid #857263; border-radius: 8px; padding: 1.5rem 1.5rem 0; box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 -2px 5px rgba(50,30,20,0.5), inset 0 2px 5px rgba(255,255,255,0.2); }
+    .bookshelf-shelf { display: flex; align-items: flex-end; gap: 1rem; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 8px solid #857263; min-height: 220px; transition: transform 0.3s ease; }
+    .book-cover { width: 130px; height: 195px; flex-shrink: 0; background-size: cover; background-position: center; border-radius: 4px 2px 2px 4px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); cursor: pointer; transform-origin: bottom center; opacity: 0; transform: translateY(30px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .book-cover.is-visible { opacity: 1; transform: translateY(0); }
+    .book-cover:nth-child(2n) { transform: translateY(0) rotateZ(-1deg); height: 190px; }
+    .book-cover:nth-child(3n) { transform: translateY(0) rotateZ(2deg); height: 200px; }
+    .book-cover:nth-child(4n) { transform: translateY(0) rotateZ(0.5deg); }
+    .bookshelf-shelf:hover .book-cover { transform: var(--transform-initial) translateX(5px) rotateY(-10deg); }
+    .bookshelf-shelf .book-cover:hover { transform: var(--transform-initial) scale(1.1) translateZ(30px) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 10; }
+    .bookshelf-shelf .book-cover:hover + .book-cover { transform: var(--transform-initial) translateX(25px) rotateY(-10deg) !important; }
+    .shelf-object { position: relative; align-self: flex-end; }
+    .plant { margin: 0 1rem; }
+    .plant-pot { width: 40px; height: 35px; background: #c2a792; border-radius: 0 0 15px 15px; }
+    .plant-leaf { position: absolute; bottom: 30px; left: 15px; width: 40px; height: 40px; background: #6b8e23; border-radius: 50% 0; }
+    .plant-leaf1 { transform: rotate(10deg) scale(0.8); left: 0px; bottom: 35px;}
+    .plant-leaf2 { transform: rotate(-45deg); }
+    .plant-leaf3 { transform: rotate(-80deg) scale(0.9); left: -10px; bottom: 32px;}
+    .bookshelf-preview { background: var(--c-bg-light); padding: 2rem; border-radius: var(--br-main); box-shadow: var(--shadow-sm); position: sticky; top: 120px; transition: all 0.3s ease; }
+    .bookshelf-preview .preview-placeholder,
+    .bookshelf-preview .preview-content { transition: opacity 0.3s ease, transform 0.3s ease; }
+    .bookshelf-preview .preview-placeholder { opacity: 1; }
+    .bookshelf-preview .preview-content { position: absolute; top: 2rem; left: 2rem; right: 2rem; opacity: 0; transform: translateY(10px); }
+    .bookshelf-preview.is-active .preview-placeholder { opacity: 0; transform: translateY(-10px); }
+    .bookshelf-preview.is-active .preview-content { opacity: 1; transform: translateY(0); position: relative; }
+    .preview-title { font-family: var(--font-heading); font-size: 1.8rem; line-height: 1.2; margin-bottom: 0.5rem; }
+    .preview-author { color: var(--c-text-muted); font-weight: 700; margin-bottom: 1rem; }
+    .preview-desc { font-size: 0.9rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* === ESTILOS MEJORADOS: TESTIMONIOS (CARRUSEL DINÁMICO) === */
+    .testimonial-slider { position: relative; max-width: 800px; margin: 4rem auto 0; }
+    .testimonial-track-container { overflow: hidden; }
+    .testimonial-track { display: flex; transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1); }
+    .testimonial-card { text-align: center; flex: 0 0 100%; padding: 2rem 4rem; display: flex; flex-direction: column; align-items: center; transition: all 0.5s ease; }
+    .testimonial-card:not(.is-active) { transform: scale(0.8); opacity: 0.4; filter: blur(2px); user-select: none; }
+    .testimonial-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 1.5rem; border: 4px solid var(--c-bg-light); }
+    .testimonial-card blockquote { font-family: var(--font-heading); font-size: 1.8rem; line-height: 1.4; font-style: italic; max-width: 600px; margin-bottom: 1rem; color: var(--c-dark); }
+    .testimonial-card cite { font-style: normal; font-weight: 700; color: var(--c-accent); }
+    .testimonial-nav { position: absolute; top: 40%; transform: translateY(-50%); width: calc(100% + 100px); left: -50px; display: flex; justify-content: space-between; }
+    .testimonial-nav button { background: var(--c-bg-light); border: 1px solid var(--c-border); width: 50px; height: 50px; border-radius: 50%; box-shadow: var(--shadow-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--c-dark); transition: all 0.2s ease; }
+    .testimonial-nav button:hover { background: var(--c-accent); color: white; transform: scale(1.1); }
+    .testimonial-dots { text-align: center; margin-top: 2rem; }
+    .testimonial-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c-border); margin: 0 5px; cursor: pointer; transition: all 0.3s ease; }
+    .testimonial-dot.is-active { background: var(--c-accent); transform: scale(1.2); }
+    
+    /* --- OTROS COMPONENTES --- */
+    .sell-form { max-width:600px; margin:auto; display:grid; gap:1.5rem; }
+    .form-row { display:flex; flex-direction:column; }
+    .form-row label { margin-bottom:.5rem; font-weight:700; }
+    .form-row input, .form-row textarea { padding:1rem; border:1px solid var(--c-border); border-radius: var(--br-main); font-family:var(--font-body); background-color: white; font-size: 1rem; transition: border-color .2s, box-shadow .2s;}
+    .form-row input:focus, .form-row textarea:focus { outline:none; border-color:var(--c-accent); box-shadow: 0 0 0 3px rgba(42, 86, 199, 0.2); }
+    .site-footer { background:var(--c-ui-element); padding:4rem 0; text-align:center; font-size:.9rem; border-top: 1px solid var(--c-border); color: var(--c-bg-main); }
+    .social-sidebar { position: fixed; left: 40px; bottom: 40px; z-index: 500; }
+    .social-sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .social-sidebar svg { width: 24px; height: 24px; fill: var(--c-dark); transition: fill .2s ease-in-out, transform .2s ease-in-out; }
+    .social-sidebar a:hover svg { fill: var(--c-accent); transform: scale(1.15) rotate(5deg); }
+    #newsletter { background: var(--c-ui-element); color: white; text-align: center; padding: 4rem 1.5rem; border-radius: var(--br-main); margin: 6rem auto; }
+    #newsletter .section-title { color: white; }
+    #newsletter .section-subtitle { color: rgba(255,255,255,0.9); margin-bottom: 2.5rem; }
+    .newsletter-form { display: flex; justify-content: center; max-width: 500px; margin: auto; gap: 1rem; flex-wrap: wrap; }
+    .newsletter-form input { flex-grow: 1; padding: 1rem; border: 1px solid transparent; border-radius: var(--br-main); font-family: var(--font-body); font-size: 1rem; }
+    
+    /* --- COMPONENTES FLOTANTES (MODAL, DRAWERS) --- */
+    .drawer { position:fixed; top:0; width:380px; height:100vh; background:var(--c-bg-light); box-shadow:-2px 0 8px rgba(0,0,0,.15); transition:transform .4s cubic-bezier(0.68, -0.55, 0.27, 1.55); display:flex; flex-direction:column; z-index:2000; right:0; transform: translateX(100%); }
+    .drawer.is-open { transform: translateX(0); }
+    .drawer-header { display:flex; justify-content:space-between; align-items:center; padding:1.5rem; background:var(--c-ui-element); color: var(--c-bg-main); }
+    .drawer-header h3 { font-family:var(--font-heading); margin:0; }
+    .drawer-items { flex:1; overflow-y:auto; padding:1.5rem; }
+    .drawer-item { display:flex; align-items:center; margin-bottom:1rem; }
+    .drawer-item img { width:60px; height:90px; object-fit:cover; border-radius:6px; margin-right:1rem; }
+    .drawer-item-info { flex:1; }
+    .drawer-item-title { font-size:1rem; font-weight:700; }
+    .drawer-item-price { font-size:.9rem; color:#555; }
+    .drawer-item-remove { background:transparent; border:none; color:#c00; cursor:pointer; font-size:1.1rem; padding-left: 1rem; }
+    .cart-footer { padding:1.5rem; border-top:1px solid var(--c-border); background-color: white; margin-top: auto;}
+    .cart-total { font-weight:700; margin-bottom:1rem; font-size: 1.2rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 31, 64, 0.8); z-index: 4000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s; backdrop-filter: blur(5px); }
+    .modal-overlay.is-open { opacity: 1; visibility: visible; }
+    .modal-content { background: white; border-radius: var(--br-main); width: 90%; max-width: 800px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; padding: 2.5rem; position: relative; transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-overlay.is-open .modal-content { transform: scale(1); }
+    .modal-close-btn { position: absolute; top: 1rem; right: 1rem; }
+    .modal-book-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: var(--br-main); }
+    .modal-book-title { font-family: var(--font-heading); font-size: 2.5rem; line-height: 1.1; margin-bottom: 0.5rem; }
+    .modal-book-author { font-size: 1.1rem; color: var(--c-text-muted); margin-bottom: 1rem; }
+    .modal-book-price { font-size: 1.5rem; font-weight: 700; color: var(--c-accent); margin-bottom: 1.5rem; }
+    .modal-book-desc { font-size: 0.95rem; max-height: 150px; overflow-y: auto; margin-bottom: 2rem; padding-right: 1rem; }
+    .modal-actions { display: flex; gap: 1rem; }
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    
+    /* === ESTILOS RESPONSIVE === */
+    @media (max-width: 992px) {
+      .hero { grid-template-columns: 1fr; text-align: center; padding: 4rem 0; min-height: auto; }
+      .hero-content { order: 2; }
+      .hero-image-wrapper { order: 1; margin-bottom: 2rem; max-height: 400px; }
+      .hero-title { font-size: 3.5rem; }
+      .hero-buttons { justify-content: center; }
+      .container { padding: 0 1rem; }
+      .section { padding: 4rem 0; }
+      .section-title { font-size: 2.5rem; }
+      .book-wheel-container { display: none; }
+      .bookshelf-layout { grid-template-columns: 1fr; }
+      .bookshelf-preview { position: relative; top: auto; margin-top: 2rem; }
+      .book-cover { width: 100px; height: 150px; transform: rotateY(0deg); }
+      .bookshelf-shelf { min-height: 170px; }
+      .bookshelf { overflow-x: auto; padding-left: 0; padding-right: 0; }
+      .bookshelf-shelf { padding-left: 1.5rem; padding-right: 1.5rem; width: max-content; }
+    }
+    @media (max-width: 768px) {
+      .nav { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: var(--c-bg-light); flex-direction: column; padding: 1rem; box-shadow: var(--shadow-sm); }
+      .nav.is-open { display: flex; }
+      .hamburger-menu { display: flex; flex-direction: column; justify-content: space-around; width: 1.5rem; height: 1.5rem; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 10; margin-left: 1rem; }
+      .hamburger-menu .bar { height: 3px; width: 1.5rem; background: var(--c-dark); border-radius: 10px; transition: all 0.3s linear; }
+      .nav-actions { gap: 0.2rem; }
+      .social-sidebar { display: none; }
+      .hero { padding: 3rem 0; }
+      .hero-title { font-size: 2.5rem; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .section-title { font-size: 2.2rem; }
+      .section-subtitle { font-size: 1rem; margin-bottom: 2.5rem; }
+      .drawer { width: 100%; }
+      .modal-content { grid-template-columns: 1fr; padding: 2rem 1.5rem; max-height: 90vh; overflow-y: auto; }
+      .modal-book-img { max-width: 200px; margin: 0 auto 1.5rem; }
+      .modal-book-title { font-size: 1.8rem; text-align: center; }
+      .modal-book-author { text-align: center; }
+      .modal-actions { justify-content: center; }
+      .section-header { text-align: center; justify-content:center; gap: 0.5rem;}
+      .section-header .section-title { width: 100%; text-align:center; font-size: 2.2rem;}
+      .category-grid { grid-template-columns: repeat(2, 1fr); }
+      .category-card-title { font-size: 1.2rem;}
+      .testimonial-card { padding: 1.5rem 1rem;}
+      .testimonial-card blockquote { font-size: 1.2rem; }
+      .testimonial-nav { display: none; }
+
+      /* Responsive para la nueva sección Finder */
+      .finder-grid { grid-template-columns: repeat(2, 1fr); }
+      .finder-card-content h3 { font-size: 1.2rem; }
+      .finder-card-content p { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="social-sidebar">
+      <ul>
+          <li><a href="#" target="_blank" aria-label="Visita nuestro Instagram"><svg viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" /></svg></a></li>
+          <li><a href="#" target="_blank" aria-label="Visita nuestro perfil en X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg></a></li>
+          <li><a href="#" target="_blank" aria-label="Únete a nuestro Telegram"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.58c-.28 1.13-1.04 1.4-1.74.88l-4.92-3.6-2.38 2.31c-.26.26-.49.49-.94.49z" /></svg></a></li>
+      </ul>
+  </aside>
+
+  <header id="site-header" class="site-header">
+    <div class="container header-inner">
+        <a href="#" class="logo">Ateneo trucho</a>
+        <div style="display: flex; align-items: center;">
+          <nav id="main-nav" class="nav">
+              <a href="#" class="nav-link">Inicio</a>
+              <a href="#catalogo" class="nav-link">Catálogo</a>
+              <a href="#vender" class="nav-link">Vender</a>
+          </nav>
+          <div class="nav-actions">
+              <button id="open-wishlist-btn" class="nav-action-btn" aria-label="Abrir lista de deseos"><svg class="icon"><use href="#icon-heart"></use></svg><span id="wishlist-count" class="badge">0</span></button>
+              <button id="open-search-btn" class="nav-action-btn" aria-label="Abrir búsqueda"><svg class="icon"><use href="#icon-search"></use></svg></button>
+              <button id="open-cart-btn" class="nav-action-btn" aria-label="Abrir carrito"><svg class="icon"><use href="#icon-cart"></use></svg><span id="cart-count" class="badge">0</span></button>
+          </div>
+          <button id="hamburger-btn" class="hamburger-menu" aria-label="Abrir menú"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        </div>
+    </div>
+  </header>
+  
+  <main>
+    <section class="hero">
+        <div class="container hero-content"><p class="hero-category">Una Biblioteca de confianza</p><h2 class="hero-title">Tu Próxima Gran Historia Te Espera.</h2><div class="hero-buttons"><a href="#catalogo" class="btn btn-primary">Ver Catálogo</a><a href="#vender" class="btn btn-secondary">Vender Libros</a></div></div>
+        <div class="hero-image-wrapper"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1740&q=80" alt="Una amplia y luminosa librería llena de estantes de libros" class="hero-image"></div>
+    </section>
+
+    <!-- ==== INICIO: SECCIÓN NUEVA - FINDER DE LECTURA ==== -->
+    <section id="finder" class="section section-light">
+        <div class="container">
+            <h2 class="section-title fade-in">Encuentra tu Próxima Lectura Ideal</h2>
+            <p class="section-subtitle fade-in">Dinos qué te apetece leer y te guiaremos hacia tu próxima gran historia a través de sus autores más icónicos.</p>
+            <div id="finder-grid" class="finder-grid fade-in">
+                
+                <a href="#catalogo" class="finder-card" data-category="Fantasía">
+                    <img src="https://images.unsplash.com/photo-1608674176853-5EC334d72852?auto=format&fit=crop&w=800&q=80" alt="Un hombre mayor con pipa, evocando a un autor de fantasía clásica" class="finder-card-img">
+                    <div class="finder-card-overlay">
+                        <div class="finder-card-content">
+                            <h3>Para una Aventura Épica</h3>
+                            <p>Descubre a J.R.R. Tolkien</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#catalogo" class="finder-card" data-category="Misterio">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80" alt="Una mujer con mirada intrigante, representando a una autora de misterio" class="finder-card-img">
+                    <div class="finder-card-overlay">
+                        <div class="finder-card-content">
+                            <h3>Para Resolver un Enigma</h3>
+                            <p>Descubre a Agatha Christie</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#catalogo" class="finder-card" data-category="Ciencia Ficción">
+                    <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=800&q=80" alt="Un hombre con aspecto pensativo, como un autor de ciencia ficción" class="finder-card-img">
+                    <div class="finder-card-overlay">
+                        <div class="finder-card-content">
+                            <h3>Para Explorar Otros Mundos</h3>
+                            <p>Descubre a Frank Herbert</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="#catalogo" class="finder-card" data-category="Clásicos">
+                    <img src="https://images.unsplash.com/photo-1619163283234-a69d76b1b2f7?auto=format&fit=crop&w=800&q=80" alt="Una mujer con vestimenta de época, como una autora de novelas clásicas" class="finder-card-img">
+                    <div class="finder-card-overlay">
+                        <div class="finder-card-content">
+                            <h3>Para un Romance de Época</h3>
+                            <p>Descubre a Jane Austen</p>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+    <!-- ==== FIN: SECCIÓN NUEVA - FINDER DE LECTURA ==== -->
+    
+    <section id="catalogo" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Nuestro Catálogo</h2>
+            <div id="filter-bar" class="filter-bar fade-in"></div>
+            <div id="books-grid" class="grid"></div>
+            <div id="pagination-container" class="pagination-container"></div>
+        </div>
+    </section>
+
+    <section id="categories" class="section section-light">
+      <div class="container">
+          <h2 class="section-title fade-in">Categorías Destacadas</h2>
+          <p class="section-subtitle fade-in">Explora nuestras colecciones y encuentra tu próxima lectura favorita.</p>
+          <div class="category-grid">
+              <a href="#" class="category-card"><img src="https://i.pinimg.com/1200x/e7/cc/bc/e7ccbc8cbb610a843f564d8c4551d342.jpg" alt="Misterio" class="category-card-img" loading="lazy"><h3 class="category-card-title">Misterio</h3></a>
+              <a href="#" class="category-card"><img src="https://i.pinimg.com/736x/68/0e/37/680e37b42782c5bd673ae8442f8468b9.jpg" alt="Fantasía" class="category-card-img" loading="lazy"><h3 class="category-card-title">Fantasía</h3></a>
+              <a href="#" class="category-card"><img src="https://i.pinimg.com/1200x/34/71/f8/3471f84c309a1a31bca036081c780eb7.jpg" alt="Ciencia Ficción" class="category-card-img" loading="lazy"><h3 class="category-card-title">Ciencia Ficción</h3></a>
+              <a href="#" class="category-card"><img src="https://i.pinimg.com/1200x/7a/85/2e/7a852eecf0cc5fe68cec27e0817440d6.jpg" alt="Clásicos" class="category-card-img" loading="lazy"><h3 class="category-card-title">Clásicos</h3></a>
+          </div>
+      </div>
+    </section>
+
+    <!-- ==== SECCIÓN RECOMENDADOS (CÍRCULO INTERACTIVO) ==== -->
+    <section id="recommended" class="section">
+      <div class="container">
+        <div class="section-header">
+            <h2 class="section-title fade-in">Nuestras Joyas Ocultas</h2>
+            <a href="#catalogo" class="view-all-link fade-in">Explorar catálogo</a>
+        </div>
+        <div id="book-wheel-container" class="book-wheel-container fade-in">
+            <div id="book-wheel" class="book-wheel"></div>
+            <div id="book-details-panel" class="book-details-panel">
+                <h3 id="wheel-book-title" class="wheel-book-title">Pasa el ratón sobre un libro</h3>
+                <p id="wheel-book-author" class="wheel-book-author">para ver sus detalles</p>
+                <p id="wheel-book-price" class="wheel-book-price"></p>
+                <div id="wheel-button-container"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==== SECCIÓN MÁS VENDIDOS (ESTANTERÍA INTERACTIVA) ==== -->
+    <section id="bestsellers" class="section section-light">
+        <div class="container">
+            <h2 class="section-title fade-in">Los Más Vendidos</h2>
+            <div id="tabs-container" class="fade-in">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="fiction">Ficción</button>
+                    <button class="tab-btn" data-tab="non-fiction">No Ficción</button>
+                    <button class="tab-btn" data-tab="romance">Romance</button>
+                </div>
+                <div class="bookshelf-layout">
+                    <div id="bookshelf-container" class="bookshelf-container">
+                        <div class="bookshelf">
+                            <div class="bookshelf-shelf">
+                                <div class="shelf-object plant">
+                                    <div class="plant-pot"></div>
+                                    <div class="plant-leaf plant-leaf1"></div>
+                                    <div class="plant-leaf plant-leaf2"></div>
+                                    <div class="plant-leaf plant-leaf3"></div>
+                                </div>
+                            </div>
+                            <div class="bookshelf-shelf"></div>
+                        </div>
+                    </div>
+                    <div id="bookshelf-preview" class="bookshelf-preview">
+                        <div class="preview-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            <p>Pasa el ratón sobre un libro</p>
+                        </div>
+                        <div class="preview-content">
+                            <h3 class="preview-title"></h3>
+                            <p class="preview-author"></p>
+                            <p class="preview-desc"></p>
+                            <a href="#" class="btn btn-primary btn-quick-view">Ver más detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== SECCIÓN TESTIMONIOS (CARRUSEL DINÁMICO) ==== -->
+    <section id="testimonials" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Opiniones de Nuestros Lectores</h2>
+            <div id="testimonial-slider" class="testimonial-slider fade-in">
+                <div class="testimonial-track-container">
+                    <div id="testimonial-track" class="testimonial-track"></div>
+                </div>
+                <div class="testimonial-nav">
+                    <button id="testimonial-prev" aria-label="Anterior testimonio">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button id="testimonial-next" aria-label="Siguiente testimonio">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+                <div id="testimonial-dots" class="testimonial-dots"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="vender" class="section section-light">
+      <div class="container"><h2 class="section-title fade-in">¿Tienes libros para vender?</h2><p class="section-subtitle fade-in">Es fácil. Rellena el formulario y publicaremos tu libro en nuestra tienda.</p><form id="sell-form" class="sell-form fade-in"><div class="form-row"><label for="title">Título del libro</label><input type="text" id="title" name="title" required></div><div class="form-row"><label for="author">Autor</label><input type="text" id="author" name="author" required></div><div class="form-row"><label for="price">Precio (€)</label><input type="number" id="price" name="price" min="0" step="0.01" required></div><div class="form-row"><label for="img">URL de la portada</label><input type="url" id="img" name="img" required></div><button type="submit" class="btn btn-primary">Publicar libro</button></form></div>
+    </section>
+    
+    <div class="container fade-in">
+        <section id="newsletter">
+            <h2 class="section-title">Únete a nuestra comunidad</h2>
+            <p class="section-subtitle">Recibe en tu email las últimas novedades y ofertas exclusivas.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Introduce tu correo electrónico" required>
+                <button type="submit" class="btn btn-primary">Suscribirme</button>
+            </form>
+        </section>
+    </div>
+  </main>
+  
+  <footer class="site-footer"><div class="container"><p>© <span id="year"></span> Libraria. Todos los derechos reservados.</p></div></footer>
+  
+  <div id="quick-view-modal" class="modal-overlay">
+      <div class="modal-content">
+          <button id="modal-close" class="btn-icon modal-close-btn" aria-label="Cerrar vista rápida"><svg class="icon"><use href="#icon-close"></use></svg></button>
+          <img src="" alt="" class="modal-book-img">
+          <div class="modal-book-details">
+              <h2 class="modal-book-title"></h2><p class="modal-book-author"></p><p class="modal-book-price"></p><p class="modal-book-desc"></p>
+              <div class="modal-actions"><button class="btn btn-primary btn-add-modal">Añadir al carrito</button><button class="btn-icon btn-wishlist-modal" aria-label="Añadir a la lista de deseos"><svg class="icon"><use href="#icon-heart"></use></svg></button></div>
+          </div>
+      </div>
+  </div>
+
+  <aside id="cart-drawer" class="drawer"><div class="drawer-header"><h3>Tu Carrito</h3><button id="close-cart" class="btn-icon"><svg class="icon"><use href="#icon-close"></use></svg></button></div><ul id="cart-items" class="drawer-items"></ul><div class="cart-footer"><p class="cart-total">Total: <span id="cart-total-value">0,00</span> €</p><button id="checkout-btn" class="btn btn-primary" style="width: 100%;">Finalizar compra</button></div></aside>
+  <aside id="wishlist-drawer" class="drawer"><div class="drawer-header"><h3>Tu Lista de Deseos</h3><button id="close-wishlist" class="btn-icon"><svg class="icon"><use href="#icon-close"></use></svg></button></div><ul id="wishlist-items" class="drawer-items"></ul></aside>
+  <div id="search-overlay" class="search-overlay" style="display:none;"><button id="close-search-btn" class="btn-icon" style="position: absolute; top: 40px; right: 40px;"><svg class="icon" style="width:2.5rem;height:2.5rem;"><use href="#icon-close"></use></svg></button><input type="search" id="search-input" class="search-input" placeholder="Buscar por título o autor..."></div>
+  <svg style="display:none;"><symbol id="icon-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></symbol><symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol><symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol><symbol id="icon-heart" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></symbol><symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></symbol></svg>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const mainNav = document.getElementById('main-nav');
+      hamburgerBtn.addEventListener('click', () => { mainNav.classList.toggle('is-open'); });
+      
+      const initialBooks = [
+        {id:1,title:"El Señor de los Anillos",author:"J. R. R. Tolkien",price:25.50,img:"https://imagessl9.casadellibro.com/a/l/s7/19/9788445011119.webp",category:"Fantasía",desc:"La primera parte de la épica trilogía de Tolkien, donde el hobbit Frodo Bolsón comienza su peligrosa misión para destruir el Anillo Único."},
+        {id:2,title:"Cien Años de Soledad",author:"Gabriel García Márquez",price:19.99,img:"https://imagessl7.casadellibro.com/a/l/s7/17/9788466379717.webp",category:"Clásicos",desc:"La novela magistral que narra la historia de la familia Buendía a lo largo de siete generaciones en el pueblo ficticio de Macondo."},
+        {id:3,title:"Orgullo y Prejuicio",author:"Jane Austen",price:15.00,img:"https://imagessl2.casadellibro.com/a/l/s7/82/9788415618782.webp",category:"Clásicos",desc:"Una comedia romántica clásica que explora las costumbres, el matrimonio y el dinero en la sociedad de la Inglaterra del siglo XIX."},
+        {id:4,title:"Hush Hush",author:"Becca Fitzpatrick",price:18.75,img:"https://imagessl0.casadellibro.com/a/l/s7/70/9788420434070.webp",category:"Ciencia Ficción",desc:"Una distopía clásica que presenta un futuro sombrío donde un gobierno totalitario vigila cada movimiento de sus ciudadanos."},
+        {id:5,title:"Seis de Cuervos",author:"Leigh Bardugo",price:21.95,img:"https://imagessl8.casadellibro.com/a/l/s7/88/9788416387588.webp",category:"Fantasía",desc:"Un grupo de seis peligrosos marginados intenta llevar a cabo un atraco imposible que podría hacerlos ricos o costarles la vida."},
+        {id:6,title:"Dune",author:"Frank Herbert",price:24.50,img:"https://imagessl8.casadellibro.com/a/l/s7/28/9788417347628.webp",category:"Ciencia Ficción",desc:"En un futuro lejano, Paul Atreides y su familia se mudan al planeta desértico Arrakis, la única fuente de la sustancia más valiosa del universo."},
+        {id:7,title:"Los Juegos Del Hambre",author:"Suzanne Collins",price:22.80,img:"https://imagessl6.casadellibro.com/a/l/s7/56/9788413144856.webp",category:"Misterio",desc:"En la Barcelona de la posguerra, un joven descubre un libro misterioso que lo lleva a un mundo de secretos y peligros."},
+        {id:8,title:"El Hobbit",author:"J. R. R. Tolkien",price:16.20,img:"https://imagessl9.casadellibro.com/a/l/s7/89/9788445017289.webp",category:"Fantasía",desc:"La aventura de Bilbo Bolsón, un hobbit que es arrastrado a una búsqueda épica para reclamar un tesoro guardado por un dragón."},
+        {id:9,title:"Fahrenheit 451",author:"Ray Bradbury",price:17.00,img:"https://www.storytel.com/images/640x640/0002047376.jpg",category:"Ciencia Ficción",desc:"En un futuro donde los libros están prohibidos, un bombero cuya labor es quemarlos comienza a cuestionar su papel en la sociedad."},
+        {id:10,title:"El Gran Gatsby",author:"F. Scott Fitzgerald",price:14.50,img:"https://www.alianzaeditorial.es/imagenes/libros/grande/9788411484025-el-gran-gatsby.jpg",category:"Clásicos",desc:"Una crítica a la superficialidad y el exceso de la alta sociedad estadounidense durante los locos años veinte."},
+        {id:11,title:"Asesinato en el Orient Express",author:"Agatha Christie",price:18.90,img:"https://m.media-amazon.com/images/I/918uWIZ4LqL._AC_UF1000,1000_QL80_.jpg",category:"Misterio",desc:"El famoso detective Hércules Poirot debe resolver un asesinato a bordo de un tren de lujo que ha quedado atrapado en la nieve."},
+        {id:12,title:"El Juego de Ender",author:"Orson Scott Card",price:20.00,img:"https://m.media-amazon.com/images/I/81xUe6jJ-YL._AC_UF1000,1000_QL80_.jpg",category:"Ciencia Ficción",desc:"Un joven prodigio es reclutado por el ejército para entrenar y liderar la lucha de la humanidad contra una raza alienígena."},
+        {id:13,title:"La Casa de los Espíritus",author:"Isabel Allende",price:21.00,img:"https://www.penguinlibros.com/es/2165275-large_default/la-casa-de-los-espiritus-edicion-especial-40-aniversario.jpg",category:"Clásicos",desc:"Una saga familiar que narra las vidas de cuatro generaciones de la familia Trueba en un país latinoamericano en constante cambio."},
+        {id:14,title:"El Silencio de los Corderos",author:"Thomas Harris",price:19.50,img:"https://www.planetadelibros.com.ar/usuaris/libros/fotos/293/m_librofot_292067_el-silencio-de-los-inocentes-el-silencio-de-los-corderos-.jpg",category:"Misterio",desc:"Una joven agente del FBI debe conseguir la ayuda del brillante pero psicópata Dr. Hannibal Lecter para atrapar a otro asesino en serie."},
+        {id:15,title:"Juego de Tronos",author:"George R. R. Martin",price:28.00,img:"https://www.penguinlibros.com/es/19082-large_default/juego-de-tronos-cancion-de-hielo-y-fuego-1-edicion-rustica.jpg",category:"Fantasía",desc:"La primera novela de la aclamada serie 'Canción de Hielo y Fuego', donde varias familias nobles luchan por el control del Trono de Hierro."},
+        {id:16,title:"Sapiens: De animales a dioses",author:"Yuval Noah Harari",price:23.50,img:"https://m.media-amazon.com/images/I/811toRet-vL._AC_UF1000,1000_QL80_.jpg",category:"No Ficción",desc:"Un fascinante recorrido por la historia de la humanidad, desde los primeros humanos que caminaron sobre la Tierra hasta las revoluciones del presente."},
+        {id:17,title:"Los siete maridos de Evelyn Hugo",author:"Taylor Jenkins Reid",price:19.95,img:"https://www.penguinlibros.com/es/2497184-large_default/los-siete-maridos-de-evelyn-hugo.jpg",category:"Romance",desc:"La leyenda de Hollywood Evelyn Hugo decide contar la verdad sobre su glamurosa y escandalosa vida a una reportera desconocida."},
+        {id:18,title:"El Priorato del Naranjo",author:"Samantha Shannon",price:29.90,img:"https://m.media-amazon.com/images/I/91uLDt5aC8L._AC_UF1000,1000_QL80_.jpg",category:"Fantasía",desc:"Un mundo dividido. Un reino sin heredera. Una antigua enemiga despierta. Una épica historia de fantasía sobre reinas, jinetes de dragones y asesinas."},
+        {id:19,title:"Proyecto Hail Mary",author:"Andy Weir",price:22.00,img:"https://proassetspdlcom.cdnstatics2.com/usuaris/libros/fotos/347/original/portada_proyecto-hail-mary_andy-weir_202105031704.jpg",category:"Ciencia Ficción",desc:"Un astronauta se despierta en una nave espacial sin recordar su misión, solo para descubrir que él es la última esperanza para salvar a la humanidad."},
+        {id:20,title:"Donde cantan los cangrejos",author:"Delia Owens",price:20.50,img:"https://imagessl5.casadellibro.com/a/l/t7/45/9788491874245.jpg",category:"Misterio",desc:"La historia de Kya, una niña abandonada que se cría en las marismas de Carolina del Norte, y se convierte en la principal sospechosa de un asesinato."},
+        {id:21,title:"Rojo, Blanco y Sangre Azul",author:"Casey McQuiston",price:17.90,img:"https://www.elresumen.com/tapas_libros/rojo_blanco_y_sangre_azul.jpg",category:"Romance",desc:"Cuando el Primer Hijo de América y un príncipe británico provocan un altercado, se ven forzados a una tregua falsa que podría tener consecuencias inesperadas."},
+        {id:22,title:"El hombre en busca de sentido",author:"Viktor Frankl",price:14.00,img:"https://www.planetadelibros.com.mx/usuaris/libros/fotos/172/m_librofot_171927_portada_el-hombre-en-busca-de-sentido_viktor-e-frankl_201506041130.jpg",category:"No Ficción",desc:"El relato de un psiquiatra sobre su experiencia en los campos de concentración nazis y su teoría de la logoterapia para encontrar sentido a la vida."},
+        {id:23,title:"Matar a un ruiseñor",author:"Harper Lee",price:16.00,img:"https://pictures.abebooks.com/isbn/9780061120084-es.jpg",category:"Clásicos",desc:"Ambientada en el sur de Estados Unidos durante la Gran Depresión, esta novela aborda temas de injusticia racial y la pérdida de la inocencia."},
+        {id:24,title:"El imperio final",author:"Brandon Sanderson",price:26.00,img:"https://m.media-amazon.com/images/I/91yQ2OD+WNL._AC_UF1000,1000_QL80_.jpg",category:"Fantasía",desc:"En un mundo dominado por un tirano inmortal, un ladrón llamado Kelsier descubre que tiene poderes alománticos y reúne a una banda para derrocar al imperio."},
+    ];
+      
+      let cart = []; let wishlist = []; const BOOKS_PER_PAGE = 8; let currentPage = 1; let currentFilteredBooks = [...initialBooks];
+      const booksGrid=document.getElementById('books-grid'), filterBar=document.getElementById('filter-bar'), paginationContainer=document.getElementById('pagination-container'), cartDrawer=document.getElementById('cart-drawer'), cartItems=document.getElementById('cart-items'), cartCount=document.getElementById('cart-count'), cartTotalValue=document.getElementById('cart-total-value'), btnOpenCart=document.getElementById('open-cart-btn'), btnCloseCart=document.getElementById('close-cart'), wishlistDrawer=document.getElementById('wishlist-drawer'), wishlistItems=document.getElementById('wishlist-items'), wishlistCount=document.getElementById('wishlist-count'), btnOpenWishlist=document.getElementById('open-wishlist-btn'), btnCloseWishlist=document.getElementById('close-wishlist'), quickViewModal=document.getElementById('quick-view-modal'), modalCloseBtn=document.getElementById('modal-close'), sellForm = document.getElementById('sell-form'), finderGrid = document.getElementById('finder-grid');
+      
+      const formatPrice=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+      const renderBooks=(booksToRender)=>{if(!booksGrid) return; booksGrid.innerHTML=''; booksToRender.forEach((book)=>{const isInWishlist = wishlist.some(item => item.id === book.id);const card=document.createElement('article');card.className='book-card fade-in';card.dataset.id = book.id;card.innerHTML=`<div class="book-img-wrapper"><img src="${book.img}" alt="Portada de ${book.title}" class="book-img" loading="lazy"><div class="book-card-actions"><button class="btn-icon btn-wishlist ${isInWishlist ? 'active' : ''}" aria-label="Añadir a lista de deseos" data-id="${book.id}"><svg class="icon"><use href="#icon-heart"></use></svg></button><button class="btn-icon btn-quick-view" aria-label="Vista rápida" data-id="${book.id}"><svg class="icon"><use href="#icon-eye"></use></svg></button></div></div><div class="book-body"><h3 class="book-title">${book.title}</h3><p class="book-author">${book.author}</p><p class="book-price">${formatPrice(book.price)} €</p></div><button class="btn-add" data-id="${book.id}">Añadir al carrito</button>`;booksGrid.appendChild(card);});setupFadeInObserver();};
+      const renderCategories = () => {if(!filterBar)return; const categories = ['Todos', ...new Set(initialBooks.map(book => book.category))];filterBar.innerHTML = categories.map(cat => `<button class="filter-btn ${cat === 'Todos' ? 'active' : ''}" data-category="${cat}">${cat}</button>`).join('');};
+      const handleFilterClick = e => {const target = e.target;if (!target.matches('.filter-btn')) return;document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));target.classList.add('active');const category = target.dataset.category;currentFilteredBooks = category === 'Todos' ? initialBooks : initialBooks.filter(book => book.category === category);currentPage = 1;renderBooks(currentFilteredBooks.slice(0, BOOKS_PER_PAGE));updatePaginationButtons();};
+      const updatePaginationButtons = () => {if(!paginationContainer) return; let buttonsHTML = '';const totalVisibleBooks = currentPage * BOOKS_PER_PAGE;if (currentPage > 1) {buttonsHTML += `<button id="show-less-btn" class="btn btn-secondary">Ver menos</button>`;}if (totalVisibleBooks < currentFilteredBooks.length) {buttonsHTML += `<button id="load-more-btn" class="btn btn-primary">Cargar más libros</button>`;}paginationContainer.innerHTML = buttonsHTML;};
+      const openQuickView = (book) => {const isInWishlist = wishlist.some(item => item.id === book.id);quickViewModal.querySelector('.modal-book-img').src = book.img;quickViewModal.querySelector('.modal-book-title').textContent = book.title;quickViewModal.querySelector('.modal-book-author').textContent = book.author;quickViewModal.querySelector('.modal-book-price').textContent = `${formatPrice(book.price)} €`;quickViewModal.querySelector('.modal-book-desc').textContent = book.desc;quickViewModal.querySelector('.btn-add-modal').dataset.id = book.id;const wishlistBtn = quickViewModal.querySelector('.btn-wishlist-modal');wishlistBtn.dataset.id = book.id;wishlistBtn.classList.toggle('active', isInWishlist);quickViewModal.classList.add('is-open');};
+      const addToCart = id => {const book=initialBooks.find(b=>b.id===id);const existing=cart.find(i=>i.id===id);existing?existing.qty++:cart.push({...book,qty:1});updateCartUI();cartDrawer.classList.add('is-open');};
+      const removeFromCart = id => { cart = cart.filter(i => i.id !== id); updateCartUI(); };
+      const updateCartUI=()=>{const totalQty=cart.reduce((s,i)=>s+i.qty,0);cartCount.textContent=totalQty; cartCount.style.display=totalQty>0?'block':'none';cartItems.innerHTML = cart.length === 0 ? '<p>Tu carrito está vacío.</p>' : cart.map(item => `<li class="drawer-item"><img src="${item.img}" alt="${item.title}"><div class="drawer-item-info"><p class="drawer-item-title">${item.title}</p><p class="drawer-item-price">${formatPrice(item.price)} € × ${item.qty}</p></div><button class="drawer-item-remove" data-id="${item.id}">✕</button></li>`).join('');cartTotalValue.textContent=formatPrice(cart.reduce((s, i) => s + (i.price*i.qty), 0));};
+      const toggleWishlist = (id) => {const index = wishlist.findIndex(item => item.id === id);if (index > -1) { wishlist.splice(index, 1); } else { const book = initialBooks.find(b => b.id === id); wishlist.push(book); } updateWishlistUI();updateWishlistIcons(id);};
+      const updateWishlistUI = () => {wishlistCount.textContent = wishlist.length;wishlistCount.style.display = wishlist.length > 0 ? 'block' : 'none';wishlistItems.innerHTML = wishlist.length === 0 ? '<p>Tu lista está vacía.</p>' : wishlist.map(item => `<li class="drawer-item"><img src="${item.img}" alt="${item.title}"><div class="drawer-item-info"><p class="drawer-item-title">${item.title}</p></div><button class="drawer-item-remove" data-id="${item.id}" aria-label="Eliminar">✕</button></li>`).join('');};
+      const updateWishlistIcons = (bookId) => {document.querySelectorAll(`.btn-wishlist[data-id="${bookId}"]`).forEach(btn => btn.classList.toggle('active', wishlist.some(i => i.id === bookId)));const modalButton = quickViewModal.querySelector(`.btn-wishlist-modal[data-id="${bookId}"]`);if(modalButton) modalButton.classList.toggle('active', wishlist.some(i => i.id === bookId));};
+      const handleSell=e=>{e.preventDefault();const fd=new FormData(sellForm);const newBook={id:Date.now(),title:fd.get('title'),author:fd.get('author'),price:parseFloat(fd.get('price')),img:fd.get('img'),category:"Nuevos",desc:"Libro añadido por un usuario."};initialBooks.unshift(newBook);if(filterBar.querySelector('.filter-btn[data-category="Todos"]')) { filterBar.querySelector('.filter-btn[data-category="Todos"]').click();}sellForm.reset();document.getElementById('catalogo').scrollIntoView();};
+      const setupFadeInObserver=()=>{const o=new IntersectionObserver((e,s)=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');s.unobserve(en.target)}})},{threshold:.1});document.querySelectorAll('.fade-in:not(.visible)').forEach(el=>o.observe(el))};
+      const handleFinderClick = (e) => { e.preventDefault(); const card = e.target.closest('.finder-card'); if (!card) return; const category = card.dataset.category; if (!category) return; const filterButton = filterBar.querySelector(`.filter-btn[data-category="${category}"]`); if (filterButton) { filterButton.click(); } document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' }); };
+      
+      // Event listeners
+      if(finderGrid) finderGrid.addEventListener('click', handleFinderClick);
+      if(filterBar) filterBar.addEventListener('click', handleFilterClick);
+      if(paginationContainer) paginationContainer.addEventListener('click', (e) => {if (e.target.id === 'load-more-btn') {currentPage++; renderBooks(currentFilteredBooks.slice(0, currentPage * BOOKS_PER_PAGE)); updatePaginationButtons();}if (e.target.id === 'show-less-btn') {currentPage = 1; renderBooks(currentFilteredBooks.slice(0, BOOKS_PER_PAGE)); updatePaginationButtons(); document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' });}});
+      if(booksGrid) booksGrid.addEventListener('click', e => {const btn = e.target.closest('button');if (!btn) return;const id = Number(btn.dataset.id);if (btn.matches('.btn-add')) addToCart(id);if (btn.matches('.btn-wishlist')) toggleWishlist(id);});
+      btnOpenCart.addEventListener('click',()=>cartDrawer.classList.add('is-open'));btnCloseCart.addEventListener('click',()=>cartDrawer.classList.remove('is-open'));
+      cartItems.addEventListener('click',e=>{if(e.target.matches('.drawer-item-remove')) removeFromCart(Number(e.target.dataset.id))});
+      btnOpenWishlist.addEventListener('click',()=>wishlistDrawer.classList.add('is-open'));btnCloseWishlist.addEventListener('click',()=>wishlistDrawer.classList.remove('is-open'));
+      wishlistItems.addEventListener('click',e=>{if(e.target.matches('.drawer-item-remove')) toggleWishlist(Number(e.target.dataset.id))});
+      modalCloseBtn.addEventListener('click',()=>quickViewModal.classList.remove('is-open'));
+      quickViewModal.addEventListener('click', e => {if(e.target === quickViewModal) quickViewModal.classList.remove('is-open');const btn = e.target.closest('button');if (!btn) return;const id = Number(btn.dataset.id);if(btn.matches('.btn-add-modal')) addToCart(id);if(btn.matches('.btn-wishlist-modal')) toggleWishlist(id);});
+      if(sellForm) sellForm.addEventListener('submit', handleSell);
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      renderCategories();
+      renderBooks(currentFilteredBooks.slice(0, BOOKS_PER_PAGE));
+      updatePaginationButtons();
+      updateCartUI();
+      updateWishlistUI();
+      
+      document.body.addEventListener('click', e => {
+        const quickViewBtn = e.target.closest('.btn-quick-view');
+        if(quickViewBtn) { e.preventDefault(); const id = Number(quickViewBtn.dataset.id); const book = initialBooks.find(b => b.id === id); if(book) openQuickView(book); }
+      });
+      
+      const setupBookWheel = () => {
+          const wheelContainer = document.getElementById('book-wheel-container');
+          const bookWheel = document.getElementById('book-wheel');
+          const detailsPanel = document.getElementById('book-details-panel');
+          if (!wheelContainer || !bookWheel || !detailsPanel) return;
+          const wheelBookIds = [5, 1, 6, 21, 15, 19, 7];
+          const radius = 280;
+          const booksToShow = wheelBookIds.map(id => initialBooks.find(book => book.id === id)).filter(Boolean);
+          const totalBooks = booksToShow.length;
+          booksToShow.forEach((book, i) => { const angle = (i / totalBooks) * 360; const item = document.createElement('div'); item.className = 'book-wheel-item'; const initialTransform = `rotateY(${angle}deg) translateZ(${radius}px)`; item.style.setProperty('--transform-initial', initialTransform); item.style.transform = initialTransform; item.innerHTML = `<img src="${book.img}" alt="${book.title}" loading="lazy">`; item.dataset.id = book.id; item.dataset.title = book.title; item.dataset.author = book.author; item.dataset.price = formatPrice(book.price); bookWheel.appendChild(item); });
+          const wheelItems = document.querySelectorAll('.book-wheel-item');
+          wheelContainer.addEventListener('mouseover', (e) => { const targetItem = e.target.closest('.book-wheel-item'); if (!targetItem) return; detailsPanel.querySelector('#wheel-book-title').textContent = targetItem.dataset.title; detailsPanel.querySelector('#wheel-book-author').textContent = `por ${targetItem.dataset.author}`; detailsPanel.querySelector('#wheel-book-price').textContent = `${targetItem.dataset.price} €`; detailsPanel.querySelector('#wheel-button-container').innerHTML = `<a href="#" class="btn btn-secondary btn-quick-view" data-id="${targetItem.dataset.id}">Ver detalles</a>`; detailsPanel.classList.add('is-active'); wheelItems.forEach(item => { item.classList.remove('hovered'); item.classList.add('pushed-back'); }); targetItem.classList.remove('pushed-back'); targetItem.classList.add('hovered'); });
+          wheelContainer.addEventListener('mouseleave', () => { detailsPanel.classList.remove('is-active'); wheelItems.forEach(item => { item.classList.remove('hovered', 'pushed-back'); }); });
+      };
+
+      const setupInteractiveBookshelf = () => {
+          const tabsContainer = document.getElementById('tabs-container');
+          const bookshelfContainer = document.getElementById('bookshelf-container');
+          const previewPanel = document.getElementById('bookshelf-preview');
+          if (!tabsContainer || !bookshelfContainer || !previewPanel) return;
+          const previewContent = { title: previewPanel.querySelector('.preview-title'), author: previewPanel.querySelector('.preview-author'), desc: previewPanel.querySelector('.preview-desc'), button: previewPanel.querySelector('.btn-quick-view') };
+          const shelves = bookshelfContainer.querySelectorAll('.bookshelf-shelf');
+          const booksByTab = { 'fiction': initialBooks.filter(b => b.category === 'Fantasía' || b.category === 'Misterio' || b.category === 'Ciencia Ficción').slice(0, 8), 'non-fiction': initialBooks.filter(b => b.category === 'No Ficción').slice(0, 8), 'romance': initialBooks.filter(b => b.category === 'Romance' || b.category === 'Clásicos').slice(0, 8), };
+          const renderBooksOnShelves = (books) => {
+              const existingBooks = bookshelfContainer.querySelectorAll('.book-cover');
+              existingBooks.forEach((book) => { book.style.transitionDelay = '0ms'; book.classList.remove('is-visible'); });
+              setTimeout(() => {
+                  shelves.forEach(shelf => { shelf.querySelectorAll('.book-cover').forEach(book => book.remove()); });
+                  books.forEach((book, index) => {
+                      const shelfIndex = index < 4 ? 0 : 1;
+                      const bookEl = document.createElement('div');
+                      bookEl.className = 'book-cover';
+                      bookEl.style.backgroundImage = `url(${book.img})`;
+                      const baseTransform = bookEl.style.transform;
+                      bookEl.style.setProperty('--transform-initial', baseTransform);
+                      bookEl.dataset.id = book.id; bookEl.dataset.title = book.title; bookEl.dataset.author = book.author; bookEl.dataset.desc = book.desc;
+                      if (shelves[shelfIndex]) {
+                          shelves[shelfIndex].appendChild(bookEl);
+                          setTimeout(() => { bookEl.style.transitionDelay = `${index * 60}ms`; bookEl.classList.add('is-visible'); }, 50);
+                      }
+                  });
+              }, 400);
+          };
+          tabsContainer.addEventListener('click', (e) => {
+              if (e.target.matches('.tab-btn') && !e.target.classList.contains('active')) {
+                  const targetTab = e.target.dataset.tab;
+                  tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                  e.target.classList.add('active');
+                  renderBooksOnShelves(booksByTab[targetTab] || []);
+                  previewPanel.classList.remove('is-active');
+              }
+          });
+          bookshelfContainer.addEventListener('mouseover', e => {
+              const bookEl = e.target.closest('.book-cover');
+              if (bookEl && previewPanel.classList.contains('is-active') && previewContent.button.dataset.id === bookEl.dataset.id) return;
+              if (bookEl) {
+                  previewContent.title.textContent = bookEl.dataset.title;
+                  previewContent.author.textContent = `por ${bookEl.dataset.author}`;
+                  previewContent.desc.textContent = bookEl.dataset.desc;
+                  previewContent.button.dataset.id = bookEl.dataset.id;
+                  previewPanel.classList.add('is-active');
+              }
+          });
+          renderBooksOnShelves(booksByTab['fiction']);
+      };
+      
+      const setupCategoryAnimations = () => {
+        const categoryObserver = new IntersectionObserver((entries, observer) => { entries.forEach(entry => { if (entry.isIntersecting) { const cards = entry.target.querySelectorAll('.category-card'); cards.forEach((card, index) => { card.style.transition = `all 0.6s ${index * 0.1}s cubic-bezier(0.34, 1.56, 0.64, 1)`; card.classList.add('visible'); }); observer.unobserve(entry.target); } }); }, { threshold: 0.2 });
+        const categoriesSection = document.getElementById('categories');
+        if (categoriesSection) { categoryObserver.observe(categoriesSection); }
+        const grid = document.querySelector('.category-grid');
+        if (grid) {
+            grid.addEventListener('mousemove', e => {
+                const card = e.target.closest('.category-card'); if (!card) return;
+                const { left, top, width, height } = card.getBoundingClientRect(); const mouseX = (e.clientX - left) / width; const mouseY = (e.clientY - top) / height; const rotateRange = 20; const rotateY = (mouseX - 0.5) * rotateRange; const rotateX = (mouseY - 0.5) * -rotateRange;
+                card.style.transform = `scale(1.05) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                const title = card.querySelector('.category-card-title'); const image = card.querySelector('.category-card-img');
+                if (title) title.style.transform = `translateZ(50px) rotateX(${rotateX/2}deg) rotateY(${rotateY/2}deg)`;
+                if (image) image.style.transform = `scale(1.1) rotateX(${rotateX/3}deg) rotateY(${rotateY/3}deg)`;
+            });
+            grid.addEventListener('mouseleave', () => { grid.querySelectorAll('.category-card.visible').forEach(card => { card.style.transform = ''; const title = card.querySelector('.category-card-title'); const image = card.querySelector('.category-card-img'); if(title) title.style.transform = 'translateZ(50px)'; if(image) image.style.transform = 'scale(1)'; }); });
+        }
+      };
+      
+      const setupTestimonialSlider = () => {
+          const slider = document.getElementById('testimonial-slider');
+          if (!slider) return;
+          const track = document.getElementById('testimonial-track');
+          const dotsContainer = document.getElementById('testimonial-dots');
+          const nextBtn = document.getElementById('testimonial-next');
+          const prevBtn = document.getElementById('testimonial-prev');
+          
+          const testimonialsData = [
+            { quote: "Una selección increíble y el envío fue rapidísimo. ¡Gracias, Ateneo Trucho!", author: "Elena G.", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+            { quote: "El nuevo diseño es precioso y muy fácil de usar. Es un placer navegar por el catálogo.", author: "Marcos R.", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+            { quote: "Me encanta la sección para vender libros. Pude dar una segunda vida a mis novelas y el proceso fue súper sencillo.", author: "Sofía L.", avatar: "https://randomuser.me/api/portraits/women/25.jpg" },
+            { quote: "Siempre encuentro lo que busco, y las recomendaciones son siempre acertadas. Mi librería de confianza.", author: "Javier P.", avatar: "https://randomuser.me/api/portraits/men/46.jpg" },
+          ];
+
+          testimonialsData.forEach((testimonial, index) => {
+              track.innerHTML += `
+                  <div class="testimonial-card">
+                      <img src="${testimonial.avatar}" alt="Avatar de ${testimonial.author}" class="testimonial-avatar">
+                      <blockquote>“${testimonial.quote}”</blockquote>
+                      <cite>- ${testimonial.author}</cite>
+                  </div>`;
+              dotsContainer.innerHTML += `<button class="testimonial-dot" data-index="${index}"></button>`;
+          });
+
+          const cards = track.querySelectorAll('.testimonial-card');
+          const dots = dotsContainer.querySelectorAll('.testimonial-dot');
+          let currentIndex = 0;
+
+          const updateSlider = (targetIndex) => {
+              const cardWidth = cards[0].offsetWidth;
+              track.style.transform = `translateX(-${targetIndex * cardWidth}px)`;
+
+              cards.forEach(card => card.classList.remove('is-active'));
+              dots.forEach(dot => dot.classList.remove('is-active'));
+
+              cards[targetIndex].classList.add('is-active');
+              dots[targetIndex].classList.add('is-active');
+
+              currentIndex = targetIndex;
+          };
+
+          nextBtn.addEventListener('click', () => {
+              const nextIndex = (currentIndex + 1) % cards.length;
+              updateSlider(nextIndex);
+          });
+          prevBtn.addEventListener('click', () => {
+              const prevIndex = (currentIndex - 1 + cards.length) % cards.length;
+              updateSlider(prevIndex);
+          });
+          dotsContainer.addEventListener('click', e => {
+              if(e.target.matches('.testimonial-dot')){
+                  updateSlider(Number(e.target.dataset.index));
+              }
+          });
+
+          updateSlider(0);
+      };
+
+    // Llamamos a todas las funciones de inicialización
+    setupBookWheel();
+    setupInteractiveBookshelf();
+    setupCategoryAnimations();
+    setupTestimonialSlider();
+    setupFadeInObserver();
+    
+    });
+  </script>
+</body>
+</html>
